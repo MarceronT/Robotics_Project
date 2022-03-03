@@ -44,15 +44,15 @@ class Model(object):
         returns the speed of the wheels in a differential wheeled robot
         
         Arguments:
-            linear_speed {float} -- Linear speed (m/s)
-            rotational_speed {float} -- Rotational speed (rad/s)
+            linear_speed {float} -- Linear speed (m/s) -> dP
+            rotational_speed {float} -- Rotational speed (rad/s) -> dtheta
         
         Returns:
             float -- Speed of motor1 (m/s), speech of motor2 (m/s)
         """
-        # TODO
-        m1_speed = rotational_speed * ((linear_speed/(rotational_speed+1)) + L/2)
-        m2_speed = rotational_speed * ((linear_speed/(rotational_speed+1)) - L/2)
+        m1_speed = linear_speed + rotational_speed * (L/2)
+        m2_speed = linear_speed - rotational_speed * (L/2)
+        
         return m1_speed, m2_speed
 
     def dk(self, m1_speed=None, m2_speed=None):
@@ -66,9 +66,10 @@ class Model(object):
         Returns:
             float -- linear speed (m/s), rotational speed (rad/s)
         """
-        # TODO
-        linear_speed = m2_speed - (rotational_speed * (L / 2))
-        rotation_speed = (linear_speed - m2_speed) / (L / 2)
+
+        linear_speed = (m1_speed + m2_speed)/2
+        rotation_speed = (m1_speed - m2_speed)/self.l
+
         return linear_speed, rotation_speed
 
     def update(self, dt):
@@ -82,10 +83,14 @@ class Model(object):
         # Going from wheel speeds to robot speed
         linear_speed, rotation_speed = self.dk()
 
-        # TODO
+        dx = (linear_speed / rotation_speed) * math.sin(rotation_speed)
+        dy = (linear_speed / rotation_speed) * (1 - math.cos(rotation_speed))
+        
+        x_m = dx * math.cos(self.theta) - dy * math.sin(self.theta)
+        y_m = dx * math.sin(self.theta) + dy * math.cos(self.theta)
 
         # Updating the robot position
-        self.x = self.x + 0  # TODO
-        self.y = self.y + 0  # TODO
-        self.theta = self.theta + 0  # TODO
+        self.x = self.x + x_m
+        self.y = self.y + y_m
+        self.theta = self.theta + self.theta_goal
 
