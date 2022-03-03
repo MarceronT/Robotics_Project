@@ -256,8 +256,8 @@ class SimpleRobotControl:
         )
 
         # TODO
-        local_speed = 0
-        local_turn = 0
+        local_speed = distance * angle_diff(m.theta, m.theta_goal)
+        local_turn = math.acos((m.x_goal - m.x) / distance)
 
         m1_speed, m2_speed = m.ik(local_speed, local_turn)
         m.m1.speed = m1_speed
@@ -267,7 +267,7 @@ class SimpleRobotControl:
         """Returns the smallest distance between 2 angles
         """
         # TODO
-        d = 0
+        d = a - b
         return d
 
 
